@@ -1,0 +1,33 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.002.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "messaging", "messaging", "{C7FC17A8-2E55-44BF-B636-49EFAD3AE11C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "messaging-uniffi", "messaging-uniffi", "{A5595DD4-82AC-4D3A-AF28-725206934E9A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "czao", "messaging\messaging-uniffi\csharp_tests\czao.csproj", "{DABF4BB3-3488-4D63-80D0-091ECCF2441D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DABF4BB3-3488-4D63-80D0-091ECCF2441D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DABF4BB3-3488-4D63-80D0-091ECCF2441D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DABF4BB3-3488-4D63-80D0-091ECCF2441D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DABF4BB3-3488-4D63-80D0-091ECCF2441D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{A5595DD4-82AC-4D3A-AF28-725206934E9A} = {C7FC17A8-2E55-44BF-B636-49EFAD3AE11C}
+		{DABF4BB3-3488-4D63-80D0-091ECCF2441D} = {A5595DD4-82AC-4D3A-AF28-725206934E9A}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BB518AAA-9036-4F84-AB4F-021DD285AB2C}
+	EndGlobalSection
+EndGlobal
