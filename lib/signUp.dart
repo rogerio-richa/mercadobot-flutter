@@ -41,10 +41,11 @@ class _RegisterPageState extends State<RegisterPage> {
     }
 
     final result = await CoreService().apiService.signUp(
-          controllers['first_name']!.text,
-          controllers['last_name']!.text,
-          controllers['username']!.text,
-        );
+        controllers['first_name']!.text,
+        controllers['last_name']!.text,
+        controllers['username']!.text,
+        Localizations.localeOf(context).countryCode ?? 'br',
+        Localizations.localeOf(context).languageCode);
 
     if (result == true) {
       success = true;
@@ -105,6 +106,11 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
+  void _navigateToSignin() {
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => const SignInPage()));
+  }
+
   Widget _submitButton() {
     return Column(
       children: [
@@ -115,7 +121,11 @@ class _RegisterPageState extends State<RegisterPage> {
             child: Column(
               children: [
                 GestureDetector(
-                  onTap: isLoading ? null : _signUp,
+                  onTap: isLoading
+                      ? null
+                      : success == true
+                          ? _navigateToSignin
+                          : _signUp,
                   child: Container(
                     width: MediaQuery.of(context).size.width,
                     padding: const EdgeInsets.symmetric(vertical: 15),
@@ -157,7 +167,9 @@ class _RegisterPageState extends State<RegisterPage> {
                             ),
                           ),
                         Text(
-                          AppLocalizations.of(context)!.register,
+                          success == true
+                              ? AppLocalizations.of(context)!.backToSignin
+                              : AppLocalizations.of(context)!.register,
                           style: Theme.of(context)
                               .textTheme
                               .displayMedium
@@ -216,10 +228,7 @@ class _RegisterPageState extends State<RegisterPage> {
     return InkWell(
       hoverColor: Colors.transparent,
       splashColor: Colors.transparent,
-      onTap: () {
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => const SignInPage()));
-      },
+      onTap: _navigateToSignin,
       child: Container(
         padding: const EdgeInsets.all(10),
         alignment: Alignment.bottomCenter,

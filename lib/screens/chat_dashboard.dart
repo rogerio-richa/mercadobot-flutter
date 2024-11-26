@@ -19,19 +19,18 @@ class _ChatDashboardState extends State<ChatDashboard>
     with SingleTickerProviderStateMixin {
   late ScrollController chatScrollController;
   late TextEditingController textEditingController;
-  late Stream<List<ChatEntry>> conversationListStream;
   int messageCount = 0;
   late AnimationController controller;
   bool isTextEmpty = true;
   late FocusNode _focusNode;
 
-
   @override
   void initState() {
     super.initState();
     _focusNode = FocusNode();
-    conversationListStream =
-        getIt.get<CoreService>().chatManager.getChatManager.messages;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      CoreService().chatManager.getChatManager.getMessageHistory();
+    });
 
     chatScrollController = ScrollController();
     textEditingController = TextEditingController();
@@ -43,7 +42,6 @@ class _ChatDashboardState extends State<ChatDashboard>
     textEditingController.addListener(() {
       setState(() {
         isTextEmpty = textEditingController.text.isEmpty;
-        print(textEditingController.text.isEmpty);
       });
     });
   }
@@ -62,72 +60,68 @@ class _ChatDashboardState extends State<ChatDashboard>
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // Dismiss the keyboard when tapping outside the text field
         _focusNode.unfocus();
       },
       child: Scaffold(
-      body: SafeArea(
-        child: StreamBuilder<List<ChatEntry>>(
-          stream: conversationListStream,
-          builder: (context, snapshot) {
-            final conversation = snapshot.data ?? [];
+        body: SafeArea(
+          child: StreamBuilder<List<ChatEntry>>(
+            stream: CoreService().chatManager.getChatManager.messages,
+            builder: (context, snapshot) {
+              final conversation = snapshot.data ?? [];
 
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (chatScrollController.hasClients) {
-                chatScrollController
-                    .jumpTo(chatScrollController.position.maxScrollExtent);
-              }
-            });
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (chatScrollController.hasClients) {
+                  chatScrollController
+                      .jumpTo(chatScrollController.position.maxScrollExtent);
+                }
+              });
 
-            return Column(
-              children: [
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: ListView.builder(
-                      controller: chatScrollController,
-                      itemCount: conversation.length,
-                      itemBuilder: (context, index) {
-                        final chatEntry = conversation[index];
-                        return ChatListItem(chatEntry: chatEntry);
-                      },
+              return Column(
+                children: [
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: ListView.builder(
+                        controller: chatScrollController,
+                        itemCount: conversation.length,
+                        itemBuilder: (context, index) {
+                          final chatEntry = conversation[index];
+                          return ChatListItem(chatEntry: chatEntry);
+                        },
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 8.0),
-                _buildMessageInput(),
-              ],
-            );
-          },
+                  const SizedBox(height: 8.0),
+                  _buildMessageInput(),
+                ],
+              );
+            },
+          ),
         ),
-      ),
       ),
     );
   }
 
   Widget _buildMessageInput() {
-
     return Row(
       children: [
         Expanded(
           child: Padding(
             padding: const EdgeInsets.only(bottom: 4.0, left: 20.0, top: 1),
             child: TextField(
+              maxLines: 1,
               focusNode: _focusNode,
               controller: textEditingController,
               style: TextStyle(
                 //color: Theme.of(context).hintColor,
-                fontSize:
-                    Theme.of(context).textTheme.displaySmall?.fontSize,
+                fontSize: Theme.of(context).textTheme.displaySmall?.fontSize,
               ),
               decoration: InputDecoration.collapsed(
                 hintText: AppLocalizations.of(context)!.typeAMessage,
                 hintStyle: TextStyle(
-                  fontSize:
-                      Theme.of(context).textTheme.displaySmall?.fontSize,
+                  fontSize: Theme.of(context).textTheme.displaySmall?.fontSize,
                 ),
               ),
-              maxLines: null,
               keyboardType: TextInputType.multiline,
               textInputAction: TextInputAction.newline,
               onSubmitted: (text) async {
@@ -162,6 +156,7 @@ class _ChatDashboardState extends State<ChatDashboard>
     }
   }
 }
+
 class ChatListItem extends StatelessWidget {
   const ChatListItem({super.key, required this.chatEntry});
 
@@ -212,4 +207,3 @@ class ChatListItem extends StatelessWidget {
     return formattedTime;
   }
 }
-

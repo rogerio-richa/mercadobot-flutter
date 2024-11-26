@@ -60,7 +60,7 @@ class _TopBarState extends State<TopBar> {
                 IconButton(
                   icon: const Icon(Icons.arrow_back),
                   onPressed: () {
-                    Navigator.of(context).pop();
+                    Navigator.of(context).pushNamed(ScreenRoutes.chat);
                   },
                 ),
               if (widget.text == 'chat')

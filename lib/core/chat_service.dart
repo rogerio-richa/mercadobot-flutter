@@ -66,6 +66,10 @@ class ChatManager {
     _messageStreamController.add(List.unmodifiable(_messages));
   }
 
+  void getMessageHistory() {
+    _messageStreamController.add(List.unmodifiable(_messages));
+  }
+
   void dispose() {
     _messageStreamController.close();
   }

@@ -91,12 +91,13 @@ class APIService {
         return {'code': response.statusCode};
       }
     } catch (e) {
-          return {};
+      return {};
     }
     return null;
   }
 
-  Future<dynamic> signUp(String firstName, String lastName, String username) async {
+  Future<dynamic> signUp(String firstName, String lastName, String username,
+      String country, String languageCode) async {
     try {
       final response = await http.post(
         Uri.parse('https://$baseUrl/v2/public/register'),
@@ -105,6 +106,9 @@ class APIService {
         },
         body: jsonEncode({
           'name': 'Test',
+          'timezone': 'America/Sao_Paulo',
+          'lang': languageCode,
+          'country': country,
           'username': username.trim().toLowerCase(),
           'last_name': lastName,
           'first_name': firstName,
@@ -112,12 +116,12 @@ class APIService {
       );
 
       if (response.statusCode == 200) {
-          return true;
+        return true;
       } else {
         return {'code': response.statusCode};
       }
     } catch (e) {
-        return {};
+      return {};
     }
   }
 
@@ -206,6 +210,52 @@ class APIService {
         headers: {
           'Authorization':
               'Bearer $jwtToken', // Use the JWT token for authentication
+          'Content-Type': 'application/json',
+        },
+      );
+
+      return response.statusCode == 200;
+    } catch (e) {
+      throw Exception('Error fetching descriptions: $e');
+    }
+  }
+
+  Future<bool> deleteShoppingListItem(String description) async {
+    try {
+      final jwtToken = await storage.read(key: 'jwtToken');
+      if (jwtToken == null) {
+        throw Exception('JWT Token not found');
+      }
+
+      final url =
+          Uri.parse('https://$baseUrl/v2/admin/shopping?list=$description');
+      final response = await http.delete(
+        url,
+        headers: {
+          'Authorization': 'Bearer $jwtToken',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      return response.statusCode == 200;
+    } catch (e) {
+      throw Exception('Error fetching descriptions: $e');
+    }
+  }
+
+  Future<bool> deleteCartItem(String description) async {
+    try {
+      final jwtToken = await storage.read(key: 'jwtToken');
+      if (jwtToken == null) {
+        throw Exception('JWT Token not found');
+      }
+
+      final url =
+          Uri.parse('https://$baseUrl/v2/admin/cart?product_ids=$description');
+      final response = await http.delete(
+        url,
+        headers: {
+          'Authorization': 'Bearer $jwtToken',
           'Content-Type': 'application/json',
         },
       );
