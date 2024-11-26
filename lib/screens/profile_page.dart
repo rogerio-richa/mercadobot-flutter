@@ -3,7 +3,6 @@ import 'package:messaging_ui/core/core_service.dart';
 import 'package:messaging_ui/main.dart';
 import 'package:messaging_ui/screen_routes.dart';
 import 'package:messaging_ui/theme/app_theme.dart';
-import 'package:messaging_ui/widgets/top_bar.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ProfilePage extends StatefulWidget {
