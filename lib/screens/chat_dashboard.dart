@@ -1,7 +1,7 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:messaging_ui/core/chat_service.dart';
 import 'package:messaging_ui/core/core_service.dart';
 import 'package:messaging_ui/injection_container.dart';
@@ -23,10 +23,13 @@ class _ChatDashboardState extends State<ChatDashboard>
   int messageCount = 0;
   late AnimationController controller;
   bool isTextEmpty = true;
+  late FocusNode _focusNode;
+
 
   @override
   void initState() {
     super.initState();
+    _focusNode = FocusNode();
     conversationListStream =
         getIt.get<CoreService>().chatManager.getChatManager.messages;
 
@@ -48,6 +51,8 @@ class _ChatDashboardState extends State<ChatDashboard>
   @override
   void dispose() {
     controller.dispose();
+
+    _focusNode.dispose();
     textEditingController.dispose();
     chatScrollController.dispose();
     super.dispose();
@@ -55,94 +60,97 @@ class _ChatDashboardState extends State<ChatDashboard>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: StreamBuilder<List<ChatEntry>>(
-        stream: conversationListStream,
-        builder: (context, snapshot) {
-          final conversation = snapshot.data ?? [];
+    return GestureDetector(
+      onTap: () {
+        // Dismiss the keyboard when tapping outside the text field
+        _focusNode.unfocus();
+      },
+      child: Scaffold(
+      body: SafeArea(
+        child: StreamBuilder<List<ChatEntry>>(
+          stream: conversationListStream,
+          builder: (context, snapshot) {
+            final conversation = snapshot.data ?? [];
 
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (chatScrollController.hasClients) {
-              chatScrollController
-                  .jumpTo(chatScrollController.position.maxScrollExtent);
-            }
-          });
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (chatScrollController.hasClients) {
+                chatScrollController
+                    .jumpTo(chatScrollController.position.maxScrollExtent);
+              }
+            });
 
-          return Column(
-            children: [
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: ListView.builder(
-                    controller: chatScrollController,
-                    itemCount: conversation.length,
-                    itemBuilder: (context, index) {
-                      final chatEntry = conversation[index];
-                      return ChatListItem(chatEntry: chatEntry);
-                    },
+            return Column(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: ListView.builder(
+                      controller: chatScrollController,
+                      itemCount: conversation.length,
+                      itemBuilder: (context, index) {
+                        final chatEntry = conversation[index];
+                        return ChatListItem(chatEntry: chatEntry);
+                      },
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 8.0),
-              _buildMessageInput(),
-            ],
-          );
-        },
+                const SizedBox(height: 8.0),
+                _buildMessageInput(),
+              ],
+            );
+          },
+        ),
+      ),
       ),
     );
   }
 
   Widget _buildMessageInput() {
-    bool isMobile = Platform.isAndroid || Platform.isIOS;
 
-    return Padding(
-      padding: isMobile ? const EdgeInsets.only(bottom: 20.0) : EdgeInsets.zero,
-      child: Row(
-        children: [
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 4.0, left: 20.0, top: 1),
-              child: TextField(
-                controller: textEditingController,
-                style: TextStyle(
-                  fontSize:
-                      Theme.of(context).textTheme.bodyMedium?.fontSize ?? 14.0,
-                  color: Theme.of(context).textTheme.bodyMedium?.color,
-                ),
-                decoration: InputDecoration.collapsed(
-                  hintText: AppLocalizations.of(context)!.typeAMessage,
-                  hintStyle: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface,
-                    fontSize:
-                        Theme.of(context).textTheme.bodyMedium?.fontSize ??
-                            14.0,
-                  ),
-                ),
-                maxLines: null,
-                keyboardType: TextInputType.multiline,
-                textInputAction: TextInputAction.newline,
-                onSubmitted: (text) async {
-                  await _sendMessage(text);
-                },
+    return Row(
+      children: [
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 4.0, left: 20.0, top: 1),
+            child: TextField(
+              focusNode: _focusNode,
+              controller: textEditingController,
+              style: TextStyle(
+                //color: Theme.of(context).hintColor,
+                fontSize:
+                    Theme.of(context).textTheme.displaySmall?.fontSize,
               ),
-            ),
-          ),
-          Offstage(
-            offstage: isTextEmpty,
-            child: IconButton(
-              icon: Icon(Icons.send,
-                  size: 30, color: Theme.of(context).colorScheme.primary),
-              onPressed: () async {
-                await _sendMessage(textEditingController.text);
+              decoration: InputDecoration.collapsed(
+                hintText: AppLocalizations.of(context)!.typeAMessage,
+                hintStyle: TextStyle(
+                  fontSize:
+                      Theme.of(context).textTheme.displaySmall?.fontSize,
+                ),
+              ),
+              maxLines: null,
+              keyboardType: TextInputType.multiline,
+              textInputAction: TextInputAction.newline,
+              onSubmitted: (text) async {
+                await _sendMessage(text);
               },
             ),
           ),
-          Offstage(
-            offstage: !isTextEmpty,
-            child: RecordButton(controller: controller),
+        ),
+        Offstage(
+          offstage: isTextEmpty,
+          child: IconButton(
+            icon: Icon(Icons.send,
+                size: 30, color: Theme.of(context).colorScheme.primary),
+            onPressed: () async {
+              await _sendMessage(textEditingController.text);
+            },
           ),
-        ],
-      ),
+        ),
+        Offstage(
+          offstage: !isTextEmpty,
+          child: RecordButton(controller: controller),
+        ),
+      ],
     );
   }
 
@@ -154,7 +162,6 @@ class _ChatDashboardState extends State<ChatDashboard>
     }
   }
 }
-
 class ChatListItem extends StatelessWidget {
   const ChatListItem({super.key, required this.chatEntry});
 
@@ -163,6 +170,7 @@ class ChatListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isUser = chatEntry.sender == 'user';
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
@@ -170,23 +178,26 @@ class ChatListItem extends StatelessWidget {
         margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
         padding: const EdgeInsets.all(10.0),
         decoration: BoxDecoration(
-          color: isUser ? Colors.blue.shade100 : Colors.grey.shade300,
+          color: isUser
+              ? colorScheme.primary.withOpacity(0.3)
+              : colorScheme.primaryContainer.withOpacity(0.3),
           borderRadius: BorderRadius.circular(12.0),
         ),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               chatEntry.message.text,
+              softWrap: true,
               style: Theme.of(context).textTheme.bodyMedium,
             ),
-            const SizedBox(height: 4.0),
             Text(
               _formatTimestamp(chatEntry.timestamp),
               style: Theme.of(context)
                   .textTheme
-                  .bodyMedium
-                  ?.copyWith(color: Colors.black54),
+                  .bodySmall
+                  ?.copyWith(color: Theme.of(context).hintColor),
             ),
           ],
         ),
@@ -195,6 +206,10 @@ class ChatListItem extends StatelessWidget {
   }
 
   String _formatTimestamp(DateTime timestamp) {
-    return "${timestamp.hour}:${timestamp.minute.toString().padLeft(2, '0')}";
+    DateTime localTime = timestamp.toLocal();
+    String formattedTime = DateFormat.jm().format(localTime);
+
+    return formattedTime;
   }
 }
+

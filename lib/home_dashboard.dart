@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:messaging_ui/screens/cart_page.dart';
 import 'package:messaging_ui/screens/chat_dashboard.dart';
 import 'package:messaging_ui/screens/history_drawer.dart';
+import 'package:messaging_ui/screens/profile_page.dart';
 import 'package:messaging_ui/screens/shopping_page.dart';
 import 'package:messaging_ui/widgets/top_bar.dart';
 
@@ -33,6 +34,11 @@ class _HomeDashboardState extends State<HomeDashboard> {
       'label': 'cart',
       'backButton': true,
       'widget': const CartPage(),
+    },
+    {
+      'label': 'profile',
+      'backButton': true,
+      'widget': const ProfilePage(),
     },
   ];
 

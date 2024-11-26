@@ -48,6 +48,7 @@ class AppThemes {
         onSurface: Colors.black87,
         error: Colors.red,
         onError: Colors.white,
+        primaryContainer: Colors.grey,
       ),
       scaffoldBackgroundColor: Colors.white,
       fontFamily: 'OpenSans',
@@ -95,8 +96,8 @@ class AppThemes {
       fontFamily: 'OpenSans',
       textTheme:
           _buildTextTheme(), // Use a helper to dynamically scale font sizes
-
-      hintColor: Colors.white.withOpacity(0.2),
+      
+      hintColor: Colors.white.withOpacity(0.5),
       iconTheme: const IconThemeData(color: Colors.deepOrange),
       appBarTheme: const AppBarTheme(
         backgroundColor: Colors.black,

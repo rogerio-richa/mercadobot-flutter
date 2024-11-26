@@ -13,17 +13,13 @@ class ScreenRoutes {
   static const profile = ProfilePage.route;
   static const cart = CartPage.route;
   static const list = ListPage.route;
-  // static const contacts = HomeDashboard.contacts;
-  // static const addContact = AddContact.route;
 }
 
 Map<String, Widget Function(BuildContext)> screenRoutes = {
   ScreenRoutes.signin: (context) => const SignInPage(),
   ScreenRoutes.loading: (context) => const SplashScreen(),
   ScreenRoutes.chat: (context) => const HomeDashboard(selectedIndex: 0),
-  ScreenRoutes.profile: (context) => const ProfilePage(),
+  ScreenRoutes.profile: (context) => const HomeDashboard(selectedIndex: 3),
   ScreenRoutes.list: (context) => const HomeDashboard(selectedIndex: 1),
   ScreenRoutes.cart: (context) => const HomeDashboard(selectedIndex: 2),
-  // ScreenRoutes.contacts: (context) => const HomeDashboard(selectedIndex: 1),
-  // ScreenRoutes.addContact: (context) => const AddContact(),
 };

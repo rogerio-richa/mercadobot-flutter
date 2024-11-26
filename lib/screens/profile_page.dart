@@ -177,9 +177,9 @@ class _ProfilePageState extends State<ProfilePage> {
         GestureDetector(
           onTap: _showSignOutConfirmation,
           child: Container(
-            width: MediaQuery.of(context).size.width,
+            width: MediaQuery.of(context).size.width - 250,
             padding: const EdgeInsets.symmetric(vertical: 15),
-            alignment: Alignment.center,
+            alignment: Alignment.bottomCenter,
             decoration: BoxDecoration(
               borderRadius: const BorderRadius.all(Radius.circular(5)),
               boxShadow: <BoxShadow>[
@@ -213,79 +213,80 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
     return Scaffold(
-      appBar: const TopBar(
-        text: 'profile',
-        showBackButton: true,
-      ),
-      body: Form(
-        key: _formKey,
-        child: SizedBox(
-          height: height,
-          child: Stack(
-            children: <Widget>[
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 30),
-                child: SingleChildScrollView(
-                    child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    _entryField(
-                        AppLocalizations.of(context)!.firstName, 'first_name'),
-                    _entryField(
-                        AppLocalizations.of(context)!.firstName, 'last_name'),
-                    const SizedBox(height: 20),
-                    _submitButton(),
-                    const SizedBox(height: 24),
-                    SwitchListTile(
-                      title: Text(AppLocalizations.of(context)!.darkMode,
-                          style: Theme.of(context).textTheme.displaySmall),
-                      value:
-                          CoreService().themeService.themeModeNotifier.value ==
-                              ThemeMode.dark,
-                      onChanged: (bool value) {
-                        setState(() {
-                          CoreService().themeService.toggleTheme();
-                        });
-                      },
-                      secondary: const Icon(Icons.brightness_6),
-                    ),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        child: Row(
-                          children: [
-                            Icon(Icons.text_increase,
-                                color: Theme.of(context).colorScheme.onSurface),
-                            const SizedBox(width: 12),
-                            Text(
-                              AppLocalizations.of(context)!.adjustTextSize,
-                              style: Theme.of(context).textTheme.displaySmall,
-                            ),
-                          ],
+      body: SafeArea(
+        child: Form(
+          key: _formKey,
+          child: SizedBox(
+            height: height,
+            child: Stack(
+              children: <Widget>[
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 30),
+                  child: SingleChildScrollView(
+                      child: Column(
+                    //crossAxisAlignment: CrossAxisAlignment.center,
+                    //mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      _entryField(AppLocalizations.of(context)!.firstName,
+                          'first_name'),
+                      _entryField(
+                          AppLocalizations.of(context)!.lastName, 'last_name'),
+                      const SizedBox(height: 20),
+                      _submitButton(),
+                      const SizedBox(height: 24),
+                      SwitchListTile(
+                        title: Text(AppLocalizations.of(context)!.darkMode,
+                            style: Theme.of(context).textTheme.displaySmall),
+                        value: CoreService()
+                                .themeService
+                                .themeModeNotifier
+                                .value ==
+                            ThemeMode.dark,
+                        onChanged: (bool value) {
+                          setState(() {
+                            CoreService().themeService.toggleTheme();
+                          });
+                        },
+                        secondary: const Icon(Icons.brightness_6),
+                      ),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: Row(
+                            children: [
+                              Icon(Icons.text_increase,
+                                  color:
+                                      Theme.of(context).colorScheme.onSurface),
+                              const SizedBox(width: 12),
+                              Text(
+                                AppLocalizations.of(context)!.adjustTextSize,
+                                style: Theme.of(context).textTheme.displaySmall,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                    Slider(
-                      value: AppThemes.textScaleFactor,
-                      min: 0.5,
-                      max: 2.0,
-                      divisions: 15,
-                      label: AppThemes.textScaleFactor.toStringAsFixed(1),
-                      onChanged: (double value) {
-                        setState(() {
-                          AppThemes.textScaleFactor = value;
-                          CoreService().apiService.setScaleFactor(value);
-                        });
-                        myAppKey.currentState?.restartApp();
-                      },
-                    ),
-                    _signOutButton()
-                  ],
-                )),
-              ),
-            ],
+                      Slider(
+                        value: AppThemes.textScaleFactor,
+                        min: 0.5,
+                        max: 2.0,
+                        divisions: 15,
+                        label: AppThemes.textScaleFactor.toStringAsFixed(1),
+                        onChanged: (double value) {
+                          setState(() {
+                            AppThemes.textScaleFactor = value;
+                            CoreService().apiService.setScaleFactor(value);
+                          });
+                          myAppKey.currentState?.restartApp();
+                        },
+                      ),
+                      _signOutButton()
+                    ],
+                  )),
+                ),
+              ],
+            ),
           ),
         ),
       ),

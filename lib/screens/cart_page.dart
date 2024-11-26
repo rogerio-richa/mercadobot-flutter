@@ -35,18 +35,19 @@ class _CartPageState extends State<CartPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _cartItems.isEmpty
+      body: SafeArea(
+        child:_cartItems.isEmpty
           ? Stack(
               children: [
                 Center(
                   child: Column(mainAxisSize: MainAxisSize.min, children: [
                     SvgPicture.asset(
                       'assets/empty_cart.svg',
-                      width: 200,
+                      width: 100,
                       alignment: Alignment.center,
                       colorFilter: ColorFilter.mode(
                         Theme.of(context)
-                            .hintColor, // Use hintColor from the current theme
+                            .hintColor,
                         BlendMode.srcIn,
                       ),
                     ),
@@ -112,6 +113,7 @@ class _CartPageState extends State<CartPage> {
                 ],
               ),
             ),
+      ),
     );
   }
 }

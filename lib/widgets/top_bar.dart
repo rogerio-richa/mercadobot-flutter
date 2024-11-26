@@ -49,7 +49,7 @@ class _TopBarState extends State<TopBar> {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      systemOverlayStyle: SystemUiOverlayStyle.light,
+      scrolledUnderElevation: 0,
       leadingWidth: 200,
       leading: Padding(
         padding: const EdgeInsets.only(left: 16.0),

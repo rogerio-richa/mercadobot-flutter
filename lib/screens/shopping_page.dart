@@ -40,7 +40,8 @@ class _ListPageState extends State<ListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _isLoading
+      body: SafeArea(
+        child: _isLoading
           ? const Center(
               child: CircularProgressIndicator(),
             )
@@ -51,12 +52,11 @@ class _ListPageState extends State<ListPage> {
                       child: SvgPicture.asset('assets/empty_cart.svg',
                           alignment: Alignment.center,
                           colorFilter: ColorFilter.mode(
-                            // Set the color based on the theme mode
                             Theme.of(context).brightness == Brightness.dark
                                 ? Colors.white.withOpacity(
-                                    0.5) // Lighten the color for dark mode
+                                    0.5)
                                 : Colors.black.withOpacity(
-                                    0.1), // Dark color for light mode
+                                    0.1),
                             BlendMode.srcIn,
                           )),
                     ),
@@ -156,12 +156,13 @@ class _ListPageState extends State<ListPage> {
                     ),
                   ],
                 ),
+      ),
     );
   }
 
   void _deleteItem(String description) {
     setState(() {
-      _descriptions.remove(description); // Remove the item from the list
+      _descriptions.remove(description);
     });
   }
 }
