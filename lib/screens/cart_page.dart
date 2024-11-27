@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:messaging_ui/core/core_service.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:messaging_ui/widgets/custom_checkbox.dart';
 
 class CartPage extends StatefulWidget {
   const CartPage({super.key});
@@ -114,7 +115,7 @@ class _CartPageState extends State<CartPage> {
                                       key: Key(item['id'].toString()),
                                       direction: DismissDirection.endToStart,
                                       onDismissed: (direction) {
-                                        _deleteItem(item['id']);
+                                        _deleteItem([item['id']]);
                                       },
                                       background: Container(
                                         alignment: Alignment.centerRight,
@@ -129,31 +130,38 @@ class _CartPageState extends State<CartPage> {
                                           Row(
                                             children: [
                                               if (_isSelectMode)
-                                                Checkbox(
-                                                  value: isSelected,
-                                                  onChanged: (bool? selected) {
-                                                    setState(() {
-                                                      if (selected == true) {
-                                                        _selectedItems
-                                                            .add(item['id']);
-                                                      } else {
-                                                        _selectedItems
-                                                            .remove(item['id']);
-                                                      }
-                                                    });
-                                                  },
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          left: 5),
+                                                  child: CustomCheckBox(
+                                                    isSelected: isSelected,
+                                                    onTap: (bool? selected) {
+                                                      setState(() {
+                                                        if (selected == true) {
+                                                          _selectedItems
+                                                              .add(item['id']);
+                                                        } else {
+                                                          _selectedItems.remove(
+                                                              item['id']);
+                                                        }
+                                                      });
+                                                    },
+                                                  ),
                                                 ),
-                                              ListTile(
-                                                leading: Image.network(
-                                                  item['image'],
-                                                  width: 50,
-                                                  height: 50,
+                                              Expanded(
+                                                child: ListTile(
+                                                  leading: Image.network(
+                                                    item['image'],
+                                                    width: 50,
+                                                    height: 50,
+                                                  ),
+                                                  title: Text(item['name']),
+                                                  subtitle: Text(
+                                                      '${AppLocalizations.of(context)!.category} : ${item['category']}'),
+                                                  trailing: Text(
+                                                      '\$${item['price'].toStringAsFixed(2)}'),
                                                 ),
-                                                title: Text(item['name']),
-                                                subtitle: Text(
-                                                    '${AppLocalizations.of(context)!.category} : ${item['category']}'),
-                                                trailing: Text(
-                                                    '\$${item['price'].toStringAsFixed(2)}'),
                                               ),
                                             ],
                                           ),
@@ -174,10 +182,25 @@ class _CartPageState extends State<CartPage> {
                             Align(
                               alignment: Alignment.bottomCenter,
                               child: BottomAppBar(
+                                height: 70,
                                 child: Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
+                                    TextButton.icon(
+                                      onPressed: () {
+                                        setState(() {
+                                          _selectedItems.clear();
+                                          _selectedItems.addAll(_cartItems
+                                              .map((item) =>
+                                                  item['id'] as String)
+                                              .toList());
+                                        });
+                                      },
+                                      icon: const Icon(Icons.select_all),
+                                      label: Text(AppLocalizations.of(context)!
+                                          .selectAll),
+                                    ),
                                     TextButton.icon(
                                       onPressed: () {
                                         setState(() {
@@ -210,11 +233,7 @@ class _CartPageState extends State<CartPage> {
   }
 
   Future<void> _deleteSelectedItems() async {
-    final idsToDelete = _selectedItems.toList();
-    // Perform deletion
-    for (final id in idsToDelete) {
-      await _deleteItem(id);
-    }
+    await _deleteItem(_selectedItems.toList());
 
     setState(() {
       _isSelectMode = false;
@@ -222,26 +241,37 @@ class _CartPageState extends State<CartPage> {
     });
   }
 
-  Future<void> _deleteItem(String id) async {
-    final isDeleted = await CoreService().apiService.deleteCartItem(id);
+  Future<void> _deleteItem(List<String> ids) async {
+    final isDeleted = await CoreService().apiService.deleteCartItems(ids);
     if (isDeleted) {
-      setState(() {
-        _cartItems.removeWhere((item) => item['id'] == id);
-      });
+      final itemsDescription = _cartItems
+          .where((item) => ids.contains(item['id']))
+          .map((item) => item['name'])
+          .join(', ');
 
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        duration: const Duration(seconds: 1),
         content: Text(
-          AppLocalizations.of(context)!.deleted(id),
+          AppLocalizations.of(context)!.deleted(itemsDescription),
           style: TextStyle(
+            fontWeight: FontWeight.bold,
             color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
-        backgroundColor: Theme.of(context).colorScheme.surface,
+        backgroundColor: Theme.of(context).colorScheme.primary,
       ));
+
+      setState(() {
+        _cartItems.removeWhere((item) => ids.contains(item['id']));
+      });
     } else {
       // Handle failure (you can show a message, etc.)
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context)!.error)),
+        SnackBar(
+            duration: const Duration(seconds: 1),
+            content: Text(
+              AppLocalizations.of(context)!.error,
+            )),
       );
     }
   }

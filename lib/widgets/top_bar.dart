@@ -71,7 +71,8 @@ class _TopBarState extends State<TopBar> {
                     if (value == 0 && widget.onDrawerTap != null) {
                       widget.onDrawerTap?.call();
                     } else if (value == 1) {
-                      CoreService().reconnect(null);
+                      CoreService()
+                          .reconnect(null, AppLocalizations.of(context)!);
                     }
                   },
                   itemBuilder: (context) => [
@@ -79,7 +80,8 @@ class _TopBarState extends State<TopBar> {
                       value: 0,
                       child: Row(
                         children: [
-                          Icon(Icons.history, color: Theme.of(context).colorScheme.onSurface),
+                          Icon(Icons.history,
+                              color: Theme.of(context).colorScheme.onSurface),
                           const SizedBox(width: 8),
                           Text(AppLocalizations.of(context)!.chatHistory),
                         ],

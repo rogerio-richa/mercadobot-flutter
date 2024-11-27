@@ -81,6 +81,7 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
         break;
       case AppLifecycleState.resumed:
         print('App is opened.');
+        CoreService().connectWebSocket();
         break;
       case AppLifecycleState.hidden:
         print('App is hidden.');

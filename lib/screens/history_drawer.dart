@@ -21,7 +21,7 @@ class _HistoryDrawerState extends State<HistoryDrawer> {
   }
 
   void _onChatSelected(String chatId) {
-    CoreService().reconnect(chatId);
+    CoreService().reconnect(chatId, null);
     Navigator.of(context).pop();
   }
 
@@ -35,16 +35,19 @@ class _HistoryDrawerState extends State<HistoryDrawer> {
     final parts = <String>[];
 
     if (days > 0) {
-      parts.add('$days day${days > 1 ? 's' : ''}');
+      parts.add(
+          '${days} ${days > 1 ? AppLocalizations.of(context)!.days_plural : AppLocalizations.of(context)!.days}');
     }
     if (hours > 0) {
-      parts.add('$hours hour${hours > 1 ? 's' : ''}');
+      parts.add(
+          '${hours} ${hours > 1 ? AppLocalizations.of(context)!.hours_plural : AppLocalizations.of(context)!.hours}');
     }
     if (minutes > 0 || parts.isEmpty) {
-      parts.add('$minutes minute${minutes > 1 ? 's' : ''}');
+      parts.add(
+          '${minutes} ${minutes > 1 ? AppLocalizations.of(context)!.minutes_plural : AppLocalizations.of(context)!.minutes}');
     }
 
-    return '${parts.join(', ')} ago';
+    return '${parts.join(', ')} ${AppLocalizations.of(context)!.ago}';
   }
 
   // Function to show confirmation dialog before deleting
@@ -54,21 +57,18 @@ class _HistoryDrawerState extends State<HistoryDrawer> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(AppLocalizations.of(context)!.confirmDeletion),
-          content:
-              Text(AppLocalizations.of(context)!.chatHistoryConfirmDelete),
+          content: Text(AppLocalizations.of(context)!.chatHistoryConfirmDelete),
           actions: <Widget>[
             TextButton(
               child: Text(AppLocalizations.of(context)!.cancel),
               onPressed: () {
-                Navigator.of(context)
-                    .pop(false);
+                Navigator.of(context).pop(false);
               },
             ),
             TextButton(
               child: Text(AppLocalizations.of(context)!.delete),
               onPressed: () {
-                Navigator.of(context)
-                    .pop(true);
+                Navigator.of(context).pop(true);
               },
             ),
           ],
@@ -100,18 +100,15 @@ class _HistoryDrawerState extends State<HistoryDrawer> {
   @override
   Widget build(BuildContext context) {
     return Drawer(
+      width: 300,
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
           Container(
-            height: 70,
-            padding: const EdgeInsets.all(20),
-            child: 
-          Text(
-                AppLocalizations.of(context)!.chatHistory,
-                style: Theme.of(context).textTheme.displayMedium
-              )),
-              
+              height: 70,
+              padding: const EdgeInsets.all(20),
+              child: Text(AppLocalizations.of(context)!.chatHistory,
+                  style: Theme.of(context).textTheme.displayMedium)),
           const Divider(
             thickness: .5,
             height: 1,
@@ -126,7 +123,9 @@ class _HistoryDrawerState extends State<HistoryDrawer> {
                 return Center(child: Text(AppLocalizations.of(context)!.error));
               }
               if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return Center(child: Text(AppLocalizations.of(context)!.noChatHistoryAvailable));
+                return Center(
+                    child: Text(
+                        AppLocalizations.of(context)!.noChatHistoryAvailable));
               }
 
               final chatList = snapshot.data!;
@@ -143,10 +142,12 @@ class _HistoryDrawerState extends State<HistoryDrawer> {
                       _getTimeDifference(lastMessageTimestamp);
 
                   return ListTile(
-                    title: Text(humanReadableTimestamp),
+                    contentPadding: const EdgeInsets.only(left: 15),
+                    title: Text(humanReadableTimestamp,
+                        style: Theme.of(context).textTheme.bodyMedium),
                     onTap: () => _onChatSelected(chatId),
                     trailing: IconButton(
-                      icon: const Icon(Icons.delete),
+                      icon: const Icon(Icons.delete, size: 20),
                       onPressed: () => _showDeleteDialog(chatId),
                     ),
                   );

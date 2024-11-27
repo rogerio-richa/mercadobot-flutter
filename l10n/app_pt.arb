@@ -1,4 +1,14 @@
 {
+  "days": "day",
+  "days_plural": "days",
+  "hours": "hour",
+  "hours_plural": "hours",
+  "minutes": "minute",
+  "minutes_plural": "minutes",
+  "ago": "ago",
+  "introMessage1": "Hi! Welcome to the Mercadobot app. I'm here to help you!",
+  "introMessage2": "Feel free to chat with me to fill up your shopping cart.",
+
     "error": "An error occurred. Please contact support.",
     "connecting": "Connecting ...",
     "offline": "Offline",
@@ -24,7 +34,7 @@
     "chatHistory": "Chat History",
 
     "category": "Category",
-
+"selectAll": "Select all",
     "cartEmpty": "Your cart is empty",
     "chatToBot": "Chat to the bot to have items added to your shopping list!",
 

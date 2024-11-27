@@ -28,7 +28,10 @@ class _ChatDashboardState extends State<ChatDashboard>
     super.initState();
     _focusNode = FocusNode();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      CoreService().chatManager.getChatManager.getMessageHistory();
+      CoreService()
+          .chatManager
+          .getChatManager
+          .getMessageHistory(AppLocalizations.of(context)!);
     });
 
     chatScrollController = ScrollController();
@@ -55,11 +58,23 @@ class _ChatDashboardState extends State<ChatDashboard>
     super.dispose();
   }
 
+  void _scrollToBottom() {
+    if (chatScrollController.hasClients) {
+      chatScrollController.animateTo(
+        chatScrollController.position.minScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        _focusNode.unfocus();
+        if (!_focusNode.hasFocus) {
+          FocusScope.of(context).requestFocus(FocusNode());
+        }
       },
       child: Scaffold(
         body: SafeArea(
@@ -67,24 +82,22 @@ class _ChatDashboardState extends State<ChatDashboard>
             stream: CoreService().chatManager.getChatManager.messages,
             builder: (context, snapshot) {
               final conversation = snapshot.data ?? [];
-
+              final reversedConversation = conversation.reversed.toList();
               WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (chatScrollController.hasClients) {
-                  chatScrollController
-                      .jumpTo(chatScrollController.position.maxScrollExtent);
-                }
+                _scrollToBottom();
               });
 
               return Column(
                 children: [
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.all(16.0),
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: ListView.builder(
+                        reverse: true,
                         controller: chatScrollController,
                         itemCount: conversation.length,
                         itemBuilder: (context, index) {
-                          final chatEntry = conversation[index];
+                          final chatEntry = reversedConversation[index];
                           return ChatListItem(chatEntry: chatEntry);
                         },
                       ),
@@ -107,25 +120,35 @@ class _ChatDashboardState extends State<ChatDashboard>
         Expanded(
           child: Padding(
             padding: const EdgeInsets.only(bottom: 4.0, left: 20.0, top: 1),
-            child: TextField(
-              maxLines: 1,
-              focusNode: _focusNode,
-              controller: textEditingController,
-              style: TextStyle(
-                //color: Theme.of(context).hintColor,
-                fontSize: Theme.of(context).textTheme.displaySmall?.fontSize,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                maxHeight: 100.0,
               ),
-              decoration: InputDecoration.collapsed(
-                hintText: AppLocalizations.of(context)!.typeAMessage,
-                hintStyle: TextStyle(
+              child: TextField(
+                focusNode: _focusNode,
+                controller: textEditingController,
+                style: TextStyle(
                   fontSize: Theme.of(context).textTheme.displaySmall?.fontSize,
                 ),
+                decoration: InputDecoration.collapsed(
+                  hintText: AppLocalizations.of(context)!.typeAMessage,
+                  hintStyle: TextStyle(
+                    fontSize:
+                        Theme.of(context).textTheme.displaySmall?.fontSize,
+                  ),
+                ),
+                keyboardType: TextInputType.multiline,
+                maxLines: null, // Allow the TextField to expand vertically
+                textAlignVertical:
+                    TextAlignVertical.top, // Align text to the top
+                onChanged: (_) {
+                  setState(() {});
+                },
+                onSubmitted: (text) async {
+                  await _sendMessage(text);
+                  _focusNode.requestFocus();
+                },
               ),
-              keyboardType: TextInputType.multiline,
-              textInputAction: TextInputAction.newline,
-              onSubmitted: (text) async {
-                await _sendMessage(text);
-              },
             ),
           ),
         ),
@@ -136,6 +159,7 @@ class _ChatDashboardState extends State<ChatDashboard>
                 size: 30, color: Theme.of(context).colorScheme.primary),
             onPressed: () async {
               await _sendMessage(textEditingController.text);
+              _focusNode.requestFocus();
             },
           ),
         ),

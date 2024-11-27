@@ -9,6 +9,7 @@ import 'package:messaging_ui/core/chat_service.dart';
 import 'package:messaging_ui/core/theme_service.dart';
 import 'package:messaging_ui/theme/configuration.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 enum ConnectivityStatus {
   connecting,
@@ -80,8 +81,9 @@ class CoreService {
     return await storage.read(key: 'jwtToken') != null;
   }
 
-  Future<void> reconnect(String? chatId) async {
-    chatManager.chatManager.clearMessages();
+  Future<void> reconnect(
+      String? chatId, AppLocalizations? localizations) async {
+    chatManager.chatManager.clearMessages(localizations);
     webSocketId = chatId ?? '';
     initWebSocket();
   }
@@ -100,7 +102,7 @@ class CoreService {
   Future<void> connectWebSocket() async {
     final jwtToken = await storage.read(key: 'jwtToken');
     if (jwtToken == null) return;
-    if (_webSocket != null) {
+    if (_webSocket != null && _webSocket?.closeCode == null) {
       print('WebSocket is already connected');
       connectivityStatus.value = ConnectivityStatus.connected;
 
@@ -129,9 +131,11 @@ class CoreService {
       stream.listen(
         (data) {
           print('Received data: $data');
+          bool notJson = true;
 
           try {
             final parsedData = jsonDecode(data);
+            notJson = false;
             if (parsedData is List) {
               final messages = parsedData
                   .map((message) => ChatEntry.fromJson(message))
@@ -142,8 +146,12 @@ class CoreService {
               chatManager.chatManager.addMessage(chatEntry);
             }
           } catch (e) {
-            webSocketId = data;
-            print('WebSocket ID received: $webSocketId');
+            if (notJson) {
+              webSocketId = data;
+              print('WebSocket ID received: $webSocketId');
+            } else {
+              print("problems");
+            }
           }
         },
         onError: (error) {

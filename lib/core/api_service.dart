@@ -220,15 +220,16 @@ class APIService {
     }
   }
 
-  Future<bool> deleteShoppingListItem(String description) async {
+  Future<bool> deleteShoppingListItems(List<String> descriptions) async {
     try {
       final jwtToken = await storage.read(key: 'jwtToken');
       if (jwtToken == null) {
         throw Exception('JWT Token not found');
       }
 
-      final url =
-          Uri.parse('https://$baseUrl/v2/admin/shopping?list=$description');
+      final descriptionsParam = descriptions.join(',');
+      final url = Uri.parse(
+          'https://$baseUrl/v2/admin/shopping?list=$descriptionsParam');
       final response = await http.delete(
         url,
         headers: {
@@ -243,15 +244,16 @@ class APIService {
     }
   }
 
-  Future<bool> deleteCartItem(String description) async {
+  Future<bool> deleteCartItems(List<String> descriptions) async {
     try {
       final jwtToken = await storage.read(key: 'jwtToken');
       if (jwtToken == null) {
         throw Exception('JWT Token not found');
       }
 
-      final url =
-          Uri.parse('https://$baseUrl/v2/admin/cart?product_ids=$description');
+      final descriptionsParam = descriptions.join(',');
+      final url = Uri.parse(
+          'https://$baseUrl/v2/admin/cart?product_ids=$descriptionsParam');
       final response = await http.delete(
         url,
         headers: {

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:messaging_ui/core/core_service.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ChatService {
   final ChatManager chatManager = ChatManager();
@@ -13,7 +14,7 @@ class ChatService {
     String? base64Audio,
   }) async {
     WebSocket? webSocket = CoreService().webSocket;
-    if (webSocket?.closeCode != null) {
+    if (webSocket == null || webSocket.closeCode != null) {
       print('WebSocket is not connected');
       return false;
     }
@@ -61,17 +62,39 @@ class ChatManager {
     _messageStreamController.add(List.unmodifiable(_messages));
   }
 
-  void clearMessages() {
+  void clearMessages(AppLocalizations? localizations) async {
     _messages.clear();
-    _messageStreamController.add(List.unmodifiable(_messages));
+    getMessageHistory(localizations);
   }
 
-  void getMessageHistory() {
+  Future<void> getMessageHistory(AppLocalizations? localizations) async {
+    if (_messages.isEmpty && localizations != null) {
+      _addMessages(localizations);
+    }
     _messageStreamController.add(List.unmodifiable(_messages));
   }
 
   void dispose() {
     _messageStreamController.close();
+  }
+
+  void _addMessages(AppLocalizations localizations) async {
+    final message1 = ChatEntry(
+      sender: 'assistant',
+      timestamp: DateTime.now(),
+      message: ChatMessage(text: localizations.introMessage1),
+    );
+
+    final message2 = ChatEntry(
+      sender: 'assistant',
+      timestamp: DateTime.now().add(const Duration(milliseconds: 500)),
+      message: ChatMessage(text: localizations.introMessage2),
+    );
+
+    await Future.delayed(const Duration(milliseconds: 2000));
+    addMessage(message1);
+    await Future.delayed(const Duration(milliseconds: 1000));
+    addMessage(message2);
   }
 }
 
@@ -164,20 +187,25 @@ class ProductResponse {
   });
 
   factory ProductResponse.fromJson(Map<String, dynamic> json) {
-    return ProductResponse(
+    ProductResponse returnValue = ProductResponse(
       category: json['category'] as String,
       image: json['image'] as String,
-      price: json['price'] is int
-          ? (json['price'] as int).toDouble()
-          : json['price'] as double,
+      price: json['price'] is String
+          ? double.tryParse(json['price'] as String) ?? 0.0
+          : (json['price'] is int
+              ? (json['price'] as int).toDouble()
+              : json['price'] as double),
       name: json['name'] as String,
-      unit: json['unit'] is int
-          ? (json['unit'] as int).toDouble()
-          : json['unit'] as double,
+      unit: json['unit'] is String
+          ? double.tryParse(json['unit'] as String) ?? 0.0
+          : (json['unit'] is int
+              ? (json['unit'] as int).toDouble()
+              : json['unit'] as double),
       measure: json['measure'] as String,
       brand: json['brand'] as String,
       id: json['id'] as String,
     );
+    return returnValue;
   }
 
   Map<String, dynamic> toJson() {
