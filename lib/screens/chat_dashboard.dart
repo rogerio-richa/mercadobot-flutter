@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:messaging_ui/core/chat_service.dart';
 import 'package:messaging_ui/core/core_service.dart';
-import 'package:messaging_ui/injection_container.dart';
 import 'package:messaging_ui/widgets/record_button.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 

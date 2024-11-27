@@ -79,7 +79,7 @@ class _TopBarState extends State<TopBar> {
                       value: 0,
                       child: Row(
                         children: [
-                          const Icon(Icons.history, color: Colors.black),
+                          Icon(Icons.history, color: Theme.of(context).colorScheme.onSurface),
                           const SizedBox(width: 8),
                           Text(AppLocalizations.of(context)!.chatHistory),
                         ],

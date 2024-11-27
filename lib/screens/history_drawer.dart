@@ -103,17 +103,19 @@ class _HistoryDrawerState extends State<HistoryDrawer> {
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
-          DrawerHeader(
-            decoration: const BoxDecoration(
-              color: Colors.black54,
-              ),
-              child: Text(
+          Container(
+            height: 70,
+            padding: const EdgeInsets.all(20),
+            child: 
+          Text(
                 AppLocalizations.of(context)!.chatHistory,
-                style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: Theme.of(context).textTheme.displayMedium
               )),
+              
+          const Divider(
+            thickness: .5,
+            height: 1,
+          ),
           FutureBuilder<List<Map<String, dynamic>>>(
             future: chatHistory,
             builder: (context, snapshot) {
