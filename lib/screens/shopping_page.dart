@@ -3,7 +3,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:messaging_ui/core/core_service.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:messaging_ui/widgets/custom_checkbox.dart';
-import 'package:roundcheckbox/roundcheckbox.dart';
 
 class ListPage extends StatefulWidget {
   const ListPage({super.key});
