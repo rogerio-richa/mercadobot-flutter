@@ -50,7 +50,7 @@ class _ListPageState extends State<ListPage> {
                 child: CircularProgressIndicator(),
               )
             : _descriptions.isEmpty
-                ? Stack(
+                ? Column(
                     children: [
                       Center(
                         child:

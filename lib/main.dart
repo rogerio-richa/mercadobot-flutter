@@ -109,9 +109,9 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
           ],
           supportedLocales: const [
             Locale('en'),
-            Locale('es'),
+            Locale('pt'),
           ],
-          locale: const Locale('en'),
+          locale: const Locale('pt'),
           navigatorKey: navigatorKey,
           title: 'MercadoBot',
           debugShowCheckedModeBanner: false,
