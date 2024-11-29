@@ -331,51 +331,45 @@ class _SignInPageState extends State<SignInPage> {
         body: Form(
       key: _formKey,
       child: SizedBox(
-        height: height,
-        child: Stack(
-          children: <Widget>[
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 30),
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    SizedBox(height: height * .1),
-                    title(),
-                    const SizedBox(height: 50),
-                    _emailPasswordWidget(),
-                    const SizedBox(height: 20),
-                    _submitButton(),
-                    Container(
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                      alignment: Alignment.centerRight,
-                      child: InkWell(
-                        hoverColor: Colors.transparent,
-                        splashColor: Colors.transparent,
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      const ForgotPasswordPage()));
-                        },
-                        child: Text(
-                            AppLocalizations.of(context)!.forgotPassword,
-                            style: Theme.of(context).textTheme.displaySmall),
-                      ),
+          height: height,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 30),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  SizedBox(height: height * .1),
+                  title(),
+                  const SizedBox(height: 50),
+                  _emailPasswordWidget(),
+                  const SizedBox(height: 20),
+                  _submitButton(),
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    alignment: Alignment.centerRight,
+                    child: InkWell(
+                      hoverColor: Colors.transparent,
+                      splashColor: Colors.transparent,
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    const ForgotPasswordPage()));
+                      },
+                      child: Text(AppLocalizations.of(context)!.forgotPassword,
+                          style: Theme.of(context).textTheme.displaySmall),
                     ),
-                    _divider(),
-                    _facebookButton(),
-                    SizedBox(height: height * .055),
-                    _createAccountLabel(),
-                  ],
-                ),
+                  ),
+                  _divider(),
+                  _facebookButton(),
+                  SizedBox(height: height * .055),
+                  _createAccountLabel(),
+                ],
               ),
-            )
-          ],
-        ),
-      ),
+            ),
+          )),
     ));
   }
 }

@@ -228,31 +228,26 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         body: Form(
       key: _formKey,
       child: SizedBox(
-        height: height,
-        child: Stack(
-          children: <Widget>[
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 30),
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    SizedBox(height: height * .1),
-                    title(),
-                    const SizedBox(height: 50),
-                    _emailPasswordWidget(),
-                    const SizedBox(height: 20),
-                    _submitButton(),
-                    SizedBox(height: height * .055),
-                    _backToSignIn(),
-                  ],
-                ),
+          height: height,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 30),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  SizedBox(height: height * .1),
+                  title(),
+                  const SizedBox(height: 50),
+                  _emailPasswordWidget(),
+                  const SizedBox(height: 20),
+                  _submitButton(),
+                  SizedBox(height: height * .055),
+                  _backToSignIn(),
+                ],
               ),
-            )
-          ],
-        ),
-      ),
+            ),
+          )),
     ));
   }
 }

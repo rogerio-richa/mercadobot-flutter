@@ -10,6 +10,7 @@ import 'package:messaging_ui/core/theme_service.dart';
 import 'package:messaging_ui/theme/configuration.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:uuid/v4.dart';
 
 enum ConnectivityStatus {
   connecting,
@@ -112,22 +113,27 @@ class CoreService {
     connectivityStatus.value = ConnectivityStatus.connecting;
 
     try {
+      bool getHistory = webSocketId.isEmpty;
+      webSocketId =
+          webSocketId.isEmpty ? const UuidV4().generate() : webSocketId;
       print(webSocketId);
+
       final uri = Uri.parse(
-        webSocketId.isEmpty
-            ? 'wss://$baseUrl/v2/admin/chat'
-            : 'wss://$baseUrl/v2/admin/chat?uid=$webSocketId',
+        'wss://$baseUrl/v2/admin/chat',
       );
 
-      _webSocket = await WebSocket.connect(uri.toString(),
-          headers: {HttpHeaders.authorizationHeader: 'Bearer $jwtToken'});
+      _webSocket = await WebSocket.connect(uri.toString(), headers: {
+        HttpHeaders.authorizationHeader: 'Bearer $jwtToken',
+        'uid': webSocketId,
+        'history': getHistory
+      });
 
       final stream = _webSocket!.asBroadcastStream();
 
       connectivityStatus.value = ConnectivityStatus.connected;
       reconnectAttempts = 0;
 
-      _webSocket!.add('Bearer $jwtToken');
+      //_webSocket!.add('Bearer $jwtToken');
       stream.listen(
         (data) {
           print('Received data: $data');

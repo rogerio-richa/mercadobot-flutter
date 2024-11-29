@@ -49,7 +49,7 @@ class _CartPageState extends State<CartPage> {
                 child: CircularProgressIndicator(),
               )
             : _cartItems.isEmpty
-                ? Stack(
+                ? Column(
                     children: [
                       Center(
                         child:
@@ -91,141 +91,132 @@ class _CartPageState extends State<CartPage> {
                       ),
                     ],
                   )
-                : Stack(
+                : Column(
                     children: [
-                      Column(
-                        children: [
-                          Expanded(
-                            child: ListView.builder(
-                                shrinkWrap: true,
-                                itemCount: _cartItems.length,
-                                itemBuilder: (context, index) {
-                                  final item = _cartItems[index];
-                                  final isSelected =
-                                      _selectedItems.contains(item['id']);
+                      Expanded(
+                        child: ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: _cartItems.length,
+                            itemBuilder: (context, index) {
+                              final item = _cartItems[index];
+                              final isSelected =
+                                  _selectedItems.contains(item['id']);
 
-                                  return GestureDetector(
-                                    onLongPress: () {
-                                      setState(() {
-                                        _isSelectMode = true;
-                                        _selectedItems.add(item['id']);
-                                      });
-                                    },
-                                    child: Dismissible(
-                                      key: Key(item['id'].toString()),
-                                      direction: DismissDirection.endToStart,
-                                      onDismissed: (direction) {
-                                        _deleteItem([item['id']]);
-                                      },
-                                      background: Container(
-                                        alignment: Alignment.centerRight,
-                                        color: Colors.redAccent,
-                                        padding:
-                                            const EdgeInsets.only(right: 20),
-                                        child: const Icon(Icons.delete,
-                                            color: Colors.white),
-                                      ),
-                                      child: Column(
+                              return GestureDetector(
+                                onLongPress: () {
+                                  setState(() {
+                                    _isSelectMode = true;
+                                    _selectedItems.add(item['id']);
+                                  });
+                                },
+                                child: Dismissible(
+                                  key: Key(item['id'].toString()),
+                                  direction: DismissDirection.endToStart,
+                                  onDismissed: (direction) {
+                                    _deleteItem([item['id']]);
+                                  },
+                                  background: Container(
+                                    alignment: Alignment.centerRight,
+                                    color: Colors.redAccent,
+                                    padding: const EdgeInsets.only(right: 20),
+                                    child: const Icon(Icons.delete,
+                                        color: Colors.white),
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      Row(
                                         children: [
-                                          Row(
-                                            children: [
-                                              if (_isSelectMode)
-                                                Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          left: 5),
-                                                  child: CustomCheckBox(
-                                                    isSelected: isSelected,
-                                                    onTap: (bool? selected) {
-                                                      setState(() {
-                                                        if (selected == true) {
-                                                          _selectedItems
-                                                              .add(item['id']);
-                                                        } else {
-                                                          _selectedItems.remove(
-                                                              item['id']);
-                                                        }
-                                                      });
-                                                    },
-                                                  ),
-                                                ),
-                                              Expanded(
-                                                child: ListTile(
-                                                  leading: Image.network(
-                                                    item['image'],
-                                                    width: 50,
-                                                    height: 50,
-                                                  ),
-                                                  title: Text(item['name']),
-                                                  subtitle: Text(
-                                                      '${AppLocalizations.of(context)!.category} : ${item['category']}'),
-                                                  trailing: Text(
-                                                      '\$${item['price'].toStringAsFixed(2)}'),
-                                                ),
+                                          if (_isSelectMode)
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  left: 5),
+                                              child: CustomCheckBox(
+                                                isSelected: isSelected,
+                                                onTap: (bool? selected) {
+                                                  setState(() {
+                                                    if (selected == true) {
+                                                      _selectedItems
+                                                          .add(item['id']);
+                                                    } else {
+                                                      _selectedItems
+                                                          .remove(item['id']);
+                                                    }
+                                                  });
+                                                },
                                               ),
-                                            ],
-                                          ),
-                                          if (index < _cartItems.length - 1)
-                                            Divider(
-                                              color: Theme.of(context)
-                                                  .dividerColor,
-                                              thickness: 0.5,
-                                              height: 1,
                                             ),
+                                          Expanded(
+                                            child: ListTile(
+                                              leading: Image.network(
+                                                item['image'],
+                                                width: 50,
+                                                height: 50,
+                                              ),
+                                              title: Text(item['name']),
+                                              subtitle: Text(
+                                                  '${AppLocalizations.of(context)!.category} : ${item['category']}'),
+                                              trailing: Text(
+                                                  '\$${item['price'].toStringAsFixed(2)}'),
+                                            ),
+                                          ),
                                         ],
                                       ),
-                                    ),
-                                  );
-                                }),
-                          ),
-                          if (_isSelectMode)
-                            Align(
-                              alignment: Alignment.bottomCenter,
-                              child: BottomAppBar(
-                                height: 70,
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    TextButton.icon(
-                                      onPressed: () {
-                                        setState(() {
-                                          _selectedItems.clear();
-                                          _selectedItems.addAll(_cartItems
-                                              .map((item) =>
-                                                  item['id'] as String)
-                                              .toList());
-                                        });
-                                      },
-                                      icon: const Icon(Icons.select_all),
-                                      label: Text(AppLocalizations.of(context)!
-                                          .selectAll),
-                                    ),
-                                    TextButton.icon(
-                                      onPressed: () {
-                                        setState(() {
-                                          _isSelectMode = false;
-                                          _selectedItems.clear();
-                                        });
-                                      },
-                                      icon: const Icon(Icons.close),
-                                      label: Text(
-                                          AppLocalizations.of(context)!.cancel),
-                                    ),
-                                    TextButton.icon(
-                                      onPressed: () async {
-                                        await _deleteSelectedItems();
-                                      },
-                                      icon: const Icon(Icons.delete),
-                                      label: Text(
-                                          AppLocalizations.of(context)!.delete),
-                                    ),
-                                  ],
+                                      if (index < _cartItems.length - 1)
+                                        Divider(
+                                          color: Theme.of(context).dividerColor,
+                                          thickness: 0.5,
+                                          height: 1,
+                                        ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            ),
-                        ],
+                              );
+                            }),
                       ),
+                      if (_isSelectMode)
+                        Align(
+                          alignment: Alignment.bottomCenter,
+                          child: BottomAppBar(
+                            height: 70,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                TextButton.icon(
+                                  onPressed: () {
+                                    setState(() {
+                                      _selectedItems.clear();
+                                      _selectedItems.addAll(_cartItems
+                                          .map((item) => item['id'] as String)
+                                          .toList());
+                                    });
+                                  },
+                                  icon: const Icon(Icons.select_all),
+                                  label: Text(
+                                      AppLocalizations.of(context)!.selectAll),
+                                ),
+                                TextButton.icon(
+                                  onPressed: () {
+                                    setState(() {
+                                      _isSelectMode = false;
+                                      _selectedItems.clear();
+                                    });
+                                  },
+                                  icon: const Icon(Icons.close),
+                                  label: Text(
+                                      AppLocalizations.of(context)!.cancel),
+                                ),
+                                TextButton.icon(
+                                  onPressed: () async {
+                                    await _deleteSelectedItems();
+                                  },
+                                  icon: const Icon(Icons.delete),
+                                  label: Text(
+                                      AppLocalizations.of(context)!.delete),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                     ],
                   ),
       ),
