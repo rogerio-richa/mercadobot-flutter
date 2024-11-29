@@ -23,6 +23,7 @@ class _ChatDashboardState extends State<ChatDashboard>
   late AnimationController controller;
   bool isTextEmpty = true;
   bool showScrollToBottomButton = false; 
+
   late FocusNode _focusNode;
 
   @override
@@ -38,7 +39,6 @@ class _ChatDashboardState extends State<ChatDashboard>
       _scrollToBottom();
 
     });
-
     chatScrollController = ScrollController();
     chatScrollController.addListener(_onScroll);
     textEditingController = TextEditingController();
@@ -55,13 +55,13 @@ class _ChatDashboardState extends State<ChatDashboard>
   }
 
 
-  void _onScroll() {
-    final isAtBottom = chatScrollController.offset <=
-        250;
-    setState(() {
-      showScrollToBottomButton = !isAtBottom;
-    });
-  }
+  // void _onScroll() {
+  //   final isAtBottom = chatScrollController.offset <=
+  //       250;
+  //   setState(() {
+  //     showScrollToBottomButton = !isAtBottom;
+  //   });
+  // }
 
   @override
   void dispose() {
@@ -70,6 +70,15 @@ class _ChatDashboardState extends State<ChatDashboard>
     textEditingController.dispose();
     chatScrollController.dispose();
     super.dispose();
+  }
+
+  void _onScroll() {
+    final isAtBottom = chatScrollController.offset >=
+        chatScrollController.position.maxScrollExtent - 100;
+    print(isAtBottom);
+    setState(() {
+      showScrollToBottomButton = !isAtBottom;
+    });
   }
 
   void _scrollToBottom() {
@@ -132,6 +141,15 @@ class _ChatDashboardState extends State<ChatDashboard>
                 ],
               );
             },
+          ),
+        ),
+        floatingActionButton: Visibility(
+          // Add the scroll-to-bottom button
+          visible:
+              showScrollToBottomButton, // Show button when scrolled away from bottom
+          child: FloatingActionButton(
+            onPressed: _scrollToBottom,
+            child: Icon(Icons.arrow_downward),
           ),
         ),
       ),
