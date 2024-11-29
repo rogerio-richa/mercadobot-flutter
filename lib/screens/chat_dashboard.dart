@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:messaging_ui/core/chat_service.dart';
 import 'package:messaging_ui/core/core_service.dart';
+import 'package:messaging_ui/widgets/custom_checkbox.dart';
 import 'package:messaging_ui/widgets/record_button.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -21,20 +22,25 @@ class _ChatDashboardState extends State<ChatDashboard>
   int messageCount = 0;
   late AnimationController controller;
   bool isTextEmpty = true;
+  bool showScrollToBottomButton = false; 
   late FocusNode _focusNode;
 
   @override
   void initState() {
     super.initState();
     _focusNode = FocusNode();
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       CoreService()
           .chatManager
           .getChatManager
           .getMessageHistory(AppLocalizations.of(context)!);
+      _scrollToBottom();
+
     });
 
     chatScrollController = ScrollController();
+    chatScrollController.addListener(_onScroll);
     textEditingController = TextEditingController();
     controller = AnimationController(
       vsync: this,
@@ -48,10 +54,18 @@ class _ChatDashboardState extends State<ChatDashboard>
     });
   }
 
+
+  void _onScroll() {
+    final isAtBottom = chatScrollController.offset <=
+        250;
+    setState(() {
+      showScrollToBottomButton = !isAtBottom;
+    });
+  }
+
   @override
   void dispose() {
     controller.dispose();
-
     _focusNode.dispose();
     textEditingController.dispose();
     chatScrollController.dispose();
@@ -83,27 +97,37 @@ class _ChatDashboardState extends State<ChatDashboard>
             builder: (context, snapshot) {
               final conversation = snapshot.data ?? [];
               final reversedConversation = conversation.reversed.toList();
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                _scrollToBottom();
-              });
-
+              
               return Column(
                 children: [
                   Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: ListView.builder(
-                        reverse: true,
-                        controller: chatScrollController,
-                        itemCount: conversation.length,
+                    child: Stack(
+                      children:[
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: ListView.builder(
+                            reverse: true,
+                            controller: chatScrollController,
+                            itemCount: conversation.length,
                         itemBuilder: (context, index) {
                           final chatEntry = reversedConversation[index];
                           return ChatListItem(chatEntry: chatEntry);
                         },
                       ),
                     ),
+                    if (showScrollToBottomButton)
+                      Positioned(
+                        bottom: 20.0,
+                        right: 20.0,
+                        child: ScrollDownButton(onTap: _scrollToBottom),
+                      ),
+                      ])
                   ),
-                  const SizedBox(height: 8.0),
+                  Divider(
+                    thickness: 1,
+                    color: Theme.of(context).dividerColor,
+                    height: 1,
+                  ),
                   _buildMessageInput(),
                 ],
               );
@@ -119,7 +143,7 @@ class _ChatDashboardState extends State<ChatDashboard>
       children: [
         Expanded(
           child: Padding(
-            padding: const EdgeInsets.only(bottom: 4.0, left: 20.0, top: 1),
+            padding: const EdgeInsets.only(bottom: 4.0, left: 20.0, top: 2),
             child: ConstrainedBox(
               constraints: const BoxConstraints(
                 maxHeight: 100.0,
@@ -138,9 +162,9 @@ class _ChatDashboardState extends State<ChatDashboard>
                   ),
                 ),
                 keyboardType: TextInputType.multiline,
-                maxLines: null, // Allow the TextField to expand vertically
+                maxLines: null,
                 textAlignVertical:
-                    TextAlignVertical.top, // Align text to the top
+                    TextAlignVertical.top,
                 onChanged: (_) {
                   setState(() {});
                 },
@@ -187,38 +211,66 @@ class ChatListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isUser = chatEntry.sender == 'user';
+
     final colorScheme = Theme.of(context).colorScheme;
+    final isAlert = chatEntry.sender == 'alert';
+
+  Alignment alignment;
+  Color bubbleColor;
+  switch (chatEntry.sender) {
+    case 'user':
+      bubbleColor = colorScheme.primary.withOpacity(0.4);
+      alignment = Alignment.centerRight;
+      break;
+    case 'alert':
+      bubbleColor = colorScheme.primary;
+      alignment = Alignment.center;
+      break;
+    case 'assistant':
+      bubbleColor = colorScheme.primaryContainer.withOpacity(0.3);
+      alignment = Alignment.centerLeft;
+      break;
+    default:
+      bubbleColor = Colors.black;
+      alignment = Alignment.centerLeft;
+  }
 
     return Align(
-      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+      alignment: alignment,
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
         padding: const EdgeInsets.all(10.0),
         decoration: BoxDecoration(
-          color: isUser
-              ? colorScheme.primary.withOpacity(0.3)
-              : colorScheme.primaryContainer.withOpacity(0.3),
+          color: bubbleColor,
           borderRadius: BorderRadius.circular(12.0),
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              chatEntry.message.text,
-              softWrap: true,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            Text(
-              _formatTimestamp(chatEntry.timestamp),
-              style: Theme.of(context)
-                  .textTheme
-                  .bodySmall
-                  ?.copyWith(color: Theme.of(context).hintColor),
-            ),
-          ],
-        ),
+        child: isAlert
+            ? Text(
+                chatEntry.message.text,
+                softWrap: true,
+                style: Theme.of(context)
+                    .textTheme
+                    .bodySmall
+                    ?.copyWith(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onPrimary),
+              )
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    chatEntry.message.text,
+                    softWrap: true,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  Text(
+                    _formatTimestamp(chatEntry.timestamp),
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodySmall
+                        ?.copyWith(color: Theme.of(context).hintColor),
+                  ),
+                ],
+              ),
       ),
     );
   }

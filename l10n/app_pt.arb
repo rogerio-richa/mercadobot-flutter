@@ -8,6 +8,8 @@
   "ago": "ago",
   "introMessage1": "Hi! Welcome to the Mercadobot app. I'm here to help you!",
   "introMessage2": "Feel free to chat with me to fill up your shopping cart.",
+  "notifyRemovedItemShoppingList": "Item removed from shopping list",
+"notifyRemovedItemCart": "Item removed from shopping cart",
 
     "error": "An error occurred. Please contact support.",
     "connecting": "Connecting ...",

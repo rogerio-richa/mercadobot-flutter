@@ -248,7 +248,10 @@ class _CartPageState extends State<CartPage> {
           .where((item) => ids.contains(item['id']))
           .map((item) => item['name'])
           .join(', ');
-
+      CoreService()
+          .chatManager
+          .getChatManager
+          .notifyOfRemovedItemFromCart(AppLocalizations.of(context)!);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         duration: const Duration(seconds: 1),
         content: Text(
@@ -265,7 +268,6 @@ class _CartPageState extends State<CartPage> {
         _cartItems.removeWhere((item) => ids.contains(item['id']));
       });
     } else {
-      // Handle failure (you can show a message, etc.)
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             duration: const Duration(seconds: 1),

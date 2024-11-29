@@ -31,3 +31,41 @@ class _CustomCheckBoxState extends State<CustomCheckBox> {
         onTap: widget.onTap);
   }
 }
+
+class ScrollDownButton extends StatefulWidget {
+  final Function onTap;
+
+  const ScrollDownButton({
+    Key? key,
+    required this.onTap,
+  }) : super(key: key);
+
+  @override
+  State<ScrollDownButton> createState() => _ScrollDownButtonState();
+}
+
+class _ScrollDownButtonState extends State<ScrollDownButton> {
+
+  bool isSelected = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return RoundCheckBox(
+        size: 35,
+        border: Border.all(color: Theme.of(context).colorScheme.primary),
+        uncheckedColor: Theme.of(context).colorScheme. onPrimary,
+        checkedColor: Theme.of(context).colorScheme.onPrimary,
+        checkedWidget: Icon(Icons.keyboard_arrow_down,
+            size: 30, color: Theme.of(context).colorScheme.primary),
+        animationDuration: const Duration(milliseconds: 700),
+        isChecked: !isSelected,
+        onTap: (input) {
+          
+          Future.delayed(const Duration(milliseconds: 2000));
+          setState(() {
+            isSelected = false;
+          });
+          return widget.onTap();
+        });
+  }
+}

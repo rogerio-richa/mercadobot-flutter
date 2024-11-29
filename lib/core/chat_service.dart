@@ -69,7 +69,7 @@ class ChatManager {
 
   Future<void> getMessageHistory(AppLocalizations? localizations) async {
     if (_messages.isEmpty && localizations != null) {
-      _addMessages(localizations);
+      _addGreetingMessages(localizations);
     }
     _messageStreamController.add(List.unmodifiable(_messages));
   }
@@ -78,7 +78,7 @@ class ChatManager {
     _messageStreamController.close();
   }
 
-  void _addMessages(AppLocalizations localizations) async {
+  void _addGreetingMessages(AppLocalizations localizations) async {
     final message1 = ChatEntry(
       sender: 'assistant',
       timestamp: DateTime.now(),
@@ -95,6 +95,28 @@ class ChatManager {
     addMessage(message1);
     await Future.delayed(const Duration(milliseconds: 1000));
     addMessage(message2);
+  }
+  
+  void notifyOfRemovedItemFromShoppingList(AppLocalizations localizations) async {
+    final message1 = ChatEntry(
+      sender: 'alert',
+      timestamp: DateTime.now(),
+      message: ChatMessage(text: localizations.notifyRemovedItemShoppingList),
+    );
+
+    await Future.delayed(const Duration(milliseconds: 2000));
+    addMessage(message1);
+  }
+ 
+  void notifyOfRemovedItemFromCart(AppLocalizations localizations) async {
+    final message1 = ChatEntry(
+      sender: 'alert',
+      timestamp: DateTime.now(),
+      message: ChatMessage(text: localizations.notifyRemovedItemCart),
+    );
+
+    await Future.delayed(const Duration(milliseconds: 2000));
+    addMessage(message1);
   }
 }
 

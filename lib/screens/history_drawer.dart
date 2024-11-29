@@ -11,6 +11,7 @@ class HistoryDrawer extends StatefulWidget {
 
 class _HistoryDrawerState extends State<HistoryDrawer> {
   late Future<List<Map<String, dynamic>>> chatHistory;
+  ScrollController drawerScrollController = ScrollController();
 
   @override
   void initState() {
@@ -56,17 +57,20 @@ class _HistoryDrawerState extends State<HistoryDrawer> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(AppLocalizations.of(context)!.confirmDeletion),
+          title: Text(AppLocalizations.of(context)!.confirmDeletion,
+              style: Theme.of(context).textTheme.displaySmall),
           content: Text(AppLocalizations.of(context)!.chatHistoryConfirmDelete),
           actions: <Widget>[
             TextButton(
-              child: Text(AppLocalizations.of(context)!.cancel),
+              child: Text(AppLocalizations.of(context)!.cancel,
+                  style: Theme.of(context).textTheme.bodyMedium),
               onPressed: () {
                 Navigator.of(context).pop(false);
               },
             ),
             TextButton(
-              child: Text(AppLocalizations.of(context)!.delete),
+              child: Text(AppLocalizations.of(context)!.delete,
+                  style: Theme.of(context).textTheme.bodyMedium),
               onPressed: () {
                 Navigator.of(context).pop(true);
               },
@@ -86,11 +90,9 @@ class _HistoryDrawerState extends State<HistoryDrawer> {
         await CoreService().apiService.deleteChatHistoryItem(chatId);
     if (isDeleted) {
       setState(() {
-        // Refresh the chat history after successful deletion
         chatHistory = CoreService().apiService.fetchChatHistory();
       });
     } else {
-      // Handle failure (you can show a message, etc.)
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(AppLocalizations.of(context)!.error)),
       );
@@ -99,63 +101,73 @@ class _HistoryDrawerState extends State<HistoryDrawer> {
 
   @override
   Widget build(BuildContext context) {
-    return Drawer(
-      width: 300,
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          Container(
-              height: 70,
-              padding: const EdgeInsets.all(20),
-              child: Text(AppLocalizations.of(context)!.chatHistory,
-                  style: Theme.of(context).textTheme.displayMedium)),
-          const Divider(
-            thickness: .5,
-            height: 1,
-          ),
-          FutureBuilder<List<Map<String, dynamic>>>(
-            future: chatHistory,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              if (snapshot.hasError) {
-                return Center(child: Text(AppLocalizations.of(context)!.error));
-              }
-              if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return Center(
-                    child: Text(
-                        AppLocalizations.of(context)!.noChatHistoryAvailable));
-              }
+    return SafeArea(
+      child: Drawer(
+        width: 300,
+        child: Column(
+          children: [
+            Container(
+                height: 70,
+                padding: const EdgeInsets.all(20),
+                child: Text(AppLocalizations.of(context)!.chatHistory,
+                    style: Theme.of(context).textTheme.displayMedium)),
+            const Divider(
+              thickness: .5,
+              height: 1,
+            ),
+            Expanded(
+              child: ListView(
+                padding: EdgeInsets.zero,
+                children: [
+                  FutureBuilder<List<Map<String, dynamic>>>(
+                    future: chatHistory,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      if (snapshot.hasError) {
+                        return Center(
+                            child: Text(AppLocalizations.of(context)!.error));
+                      }
+                      if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                        return Center(
+                            child: Text(AppLocalizations.of(context)!
+                                .noChatHistoryAvailable));
+                      }
 
-              final chatList = snapshot.data!;
+                      final chatList = snapshot.data!;
 
-              return ListView.builder(
-                shrinkWrap: true,
-                itemCount: chatList.length,
-                itemBuilder: (context, index) {
-                  final chat = chatList[index];
-                  final chatId = chat['chat_id'];
-                  final lastMessageTimestamp =
-                      DateTime.parse(chat['last_message_timestamp']);
-                  final humanReadableTimestamp =
-                      _getTimeDifference(lastMessageTimestamp);
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: chatList.length,
+                        controller: drawerScrollController,
+                        itemBuilder: (context, index) {
+                          final chat = chatList[index];
+                          final chatId = chat['chat_id'];
+                          final lastMessageTimestamp =
+                              DateTime.parse(chat['last_message_timestamp']);
+                          final humanReadableTimestamp =
+                              _getTimeDifference(lastMessageTimestamp);
 
-                  return ListTile(
-                    contentPadding: const EdgeInsets.only(left: 15),
-                    title: Text(humanReadableTimestamp,
-                        style: Theme.of(context).textTheme.bodyMedium),
-                    onTap: () => _onChatSelected(chatId),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.delete, size: 20),
-                      onPressed: () => _showDeleteDialog(chatId),
-                    ),
-                  );
-                },
-              );
-            },
-          ),
-        ],
+                          return ListTile(
+                            contentPadding: const EdgeInsets.only(left: 15),
+                            title: Text(humanReadableTimestamp,
+                                style: Theme.of(context).textTheme.bodyMedium),
+                            onTap: () => _onChatSelected(chatId),
+                            trailing: IconButton(
+                              icon: const Icon(Icons.delete, size: 20),
+                              onPressed: () => _showDeleteDialog(chatId),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

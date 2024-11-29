@@ -240,6 +240,11 @@ class _ListPageState extends State<ListPage> {
     final isDeleted =
         await CoreService().apiService.deleteShoppingListItems(description);
     if (isDeleted) {
+      CoreService()
+          .chatManager
+          .getChatManager
+          .notifyOfRemovedItemFromShoppingList(AppLocalizations.of(context)!);
+
       setState(() {
         _descriptions.removeWhere((item) => description.contains(item));
       });
@@ -255,7 +260,6 @@ class _ListPageState extends State<ListPage> {
         backgroundColor: Theme.of(context).colorScheme.primary,
       ));
     } else {
-      // Handle failure (you can show a message, etc.)
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             duration: const Duration(seconds: 1),

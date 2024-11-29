@@ -338,7 +338,6 @@ class APIService {
     }
   }
 
-  // Function to fetch chat history from the server
   Future<List<Map<String, dynamic>>> fetchChatHistory() async {
     try {
       final jwtToken = await storage.read(key: 'jwtToken');
