@@ -55,14 +55,6 @@ class _ChatDashboardState extends State<ChatDashboard>
   }
 
 
-  // void _onScroll() {
-  //   final isAtBottom = chatScrollController.offset <=
-  //       250;
-  //   setState(() {
-  //     showScrollToBottomButton = !isAtBottom;
-  //   });
-  // }
-
   @override
   void dispose() {
     controller.dispose();
@@ -71,10 +63,10 @@ class _ChatDashboardState extends State<ChatDashboard>
     chatScrollController.dispose();
     super.dispose();
   }
-
+  
   void _onScroll() {
-    final isAtBottom = chatScrollController.offset >=
-        chatScrollController.position.maxScrollExtent - 100;
+    final isAtBottom = chatScrollController.offset <=
+        50;
     print(isAtBottom);
     setState(() {
       showScrollToBottomButton = !isAtBottom;
@@ -141,15 +133,6 @@ class _ChatDashboardState extends State<ChatDashboard>
                 ],
               );
             },
-          ),
-        ),
-        floatingActionButton: Visibility(
-          // Add the scroll-to-bottom button
-          visible:
-              showScrollToBottomButton, // Show button when scrolled away from bottom
-          child: FloatingActionButton(
-            onPressed: _scrollToBottom,
-            child: Icon(Icons.arrow_downward),
           ),
         ),
       ),
